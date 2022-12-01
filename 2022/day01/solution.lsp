@@ -1,0 +1,45 @@
+(defvar cal-max0 0)
+(defvar cal-max1 0)
+(defvar cal-max2 0)
+(defvar tmp 0)
+(defvar cal-sum 0)
+
+(defun get-file (filename)
+  (with-open-file (stream filename)
+    (loop for line = (read-line stream nil)
+          while line
+          collect line)
+  )
+)
+
+(defun get-max-cals (cal-list)
+  (loop for cal in cal-list do
+    (if (string= cal "")
+      (progn
+        (if (> cal-sum cal-max0)
+          (progn
+            (setf cal-max2 cal-max1)
+            (setf cal-max1 cal-max0)
+            (setf cal-max0 cal-sum)
+          )
+          (if (> cal-sum cal-max1)
+            (progn
+              (setf cal-max2 cal-max1)
+              (setf cal-max1 cal-sum)
+            )
+            (if (> cal-sum cal-max2)
+              (setf cal-max2 cal-sum)
+            )
+          )
+        )
+        (setf cal-sum 0)
+      )
+      (setf cal-sum (+ cal-sum (parse-integer cal)))
+    )
+  )
+)
+
+(get-max-cals (get-file "input.txt"))
+(print (format nil "Max calories: ~a" cal-max0))
+(print (format nil "Top 3 calories: ~a" (list cal-max0 cal-max1 cal-max2)))
+(print (format nil "Sum top 3 calories: ~a" (+ cal-max0 cal-max1 cal-max2)))
