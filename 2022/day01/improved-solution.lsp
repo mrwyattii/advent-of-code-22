@@ -10,7 +10,7 @@
   )
 )
 
-(defun split-list (l delim)
+(defun split-list (l &optional (delim ""))
   (if (> 2 (length l))
     (list l)
     (if (string= delim (car l))
@@ -39,6 +39,6 @@
   (reduce #'+ (subseq (sort (map 'list #'sum-calories input) '>) 0 3))
 )
 
-(setq input (mapcar #'convert-to-int (split-list (load-file "input.txt") "")))
+(setq input (mapcar #'convert-to-int (split-list (load-file "input.txt"))))
 (format t "Max calories (part 1): ~a~%" (part-1 input))
 (format t "Top 3 calories sum (part 2): ~a" (part-2 input))
