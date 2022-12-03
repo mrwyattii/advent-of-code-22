@@ -70,48 +70,44 @@
   )
 )
 
-(defun get-top-crate (pos crates)
-  (if (= pos 0)
-    (first (first crates))
-    (get-top-crate (- pos 1) (rest crates))
+(defun get-top-crates (crates pos num &optional (rev nil))
+  (let ((tmp (subseq (first (subseq crates pos)) 0 num)))
+    (if rev (reverse tmp) tmp)
   )
 )
 
-(defun move-crate (move-from move-to crates)
-  (let ((crate-to-move (get-top-crate move-from crates)))
-    (loop for i from 0 for stack in crates collect
-      (cond
-        ((equal move-from i) (rest stack))
-        ((equal move-to i) (push crate-to-move stack))
-        (t stack)
-      )
-    )
-  )
-)
-
-(defun process-move (move crates)
+(defun process-move (crates move &optional (multi-move nil))
   (destructuring-bind (move-n move-from move-to) move
-    (if (> move-n 0)
-      (process-move (list (- move-n 1) move-from move-to)
-                    (move-crate move-from move-to crates)
+    (let ((crates-to-move (get-top-crates crates move-from move-n multi-move)))
+      (loop for i from 0 for stack in crates collect
+        (cond
+          ((equal move-from i) (subseq stack move-n (length stack)))
+          ((equal move-to i) (append crates-to-move stack))
+          (t stack)
+        )
       )
-      crates
     )
-  )
-)
-
-(defun make-moves (moves crates)
-  (if (null moves)
-    crates
-    (make-moves (rest moves) (process-move (first moves) crates))
   )
 )
 
 (defun part-1 (moves crates)
-  (format nil "~{~A~}" (mapcar #'first (make-moves moves crates)))
+  (format nil "~{~A~}"
+    (mapcar #'first
+      (reduce #'process-move moves :initial-value crates)
+    )
+  )
+)
+
+(defun part-2 (moves crates)
+  (format nil "~{~A~}"
+    (mapcar #'first
+      (reduce (lambda (x y) (process-move x y t)) moves :initial-value crates)
+    )
+  )
 )
 
 (setq input (split-list (load-file "input.txt") ""))
 (setq crates (get-crates (first input)))
 (setq moves (mapcar #'extract-move-data (first (last input))))
 (format t "Part 1: ~a~%" (part-1 moves crates))
+(format t "Part 2: ~a~%" (part-2 moves crates))
