@@ -21,8 +21,19 @@
   (coerce sym 'string)
 )
 
+(defun is-upper-case (s)
+  (equal (string-upcase s) s)
+)
+
 (defun diff-chars (c base &optional (offset 1))
   (+ offset (- (char-to-int c) (char-to-int base)))
+)
+
+(defun get-char-value (c)
+  (if (is-upper-case c)
+    (diff-chars c "A" 27)
+    (diff-chars c "a" 1)
+  )
 )
 
 (defun half-str-len (l)
@@ -37,27 +48,33 @@
   (coerce s 'list)
 )
 
-(defun str-intersection (s1 s2)
-  (sym-to-char (subseq (intersection (str-to-list s1) (str-to-list s2)) 0 1))
+(defun str-inter (s1 s2)
+  (sym-to-char (intersection (str-to-list s1) (str-to-list s2)))
 )
 
-(defun is-upper-case (s)
-  (equal (string-upcase s) s)
+(defun multi-str-inter (str-list)
+  (if (equal (length str-list) 2)
+    (apply #'str-inter str-list)
+    (str-inter (car str-list) (multi-str-inter (cdr str-list)))
+  )
 )
 
 (defun get-container-value (container)
-  (progn
-    (setq tmp (apply #'str-intersection (split-str-half container)))
-    (if (is-upper-case tmp)
-      (diff-chars tmp "A" 27)
-      (diff-chars tmp "a" 1)
-    )
-  )
+  (get-char-value (subseq (apply #'str-inter (split-str-half container)) 0 1))
 )
 
 (defun part-1 (input)
  (apply #'+ (mapcar #'(lambda (x) (get-container-value x)) input))
 )
 
+(defun part-2 (input)
+  (apply #'+
+    (loop for (a b c) on input by #'cdddr collect
+      (get-char-value (subseq (multi-str-inter (list a b c)) 0 1))
+    )
+  )
+)
+
 (setq input (load-file "input.txt"))
 (format t "Part 1: ~a~%" (part-1 input))
+(format t "Part 2: ~a~%" (part-2 input))
