@@ -35,7 +35,7 @@ class Day04(AoCDay):
         print(word_count)
 
     @staticmethod
-    def x_mas_in_position(grid, start):
+    def x_mas_in_position(grid: Dict[Tuple[int, int], str], start: Tuple[int, int]):
         if grid.get(start) != "A":
             return False
         x, y = start
