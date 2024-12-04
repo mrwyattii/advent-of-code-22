@@ -1,11 +1,11 @@
 from itertools import product
-from typing import Dict, Tuple
+from typing import Dict, List, Tuple
 
 from common.aoc_day import AoCDay
 
 
 class Day04(AoCDay):
-    def process_input(self, raw_input: Dict[Tuple[int, int], str]):
+    def process_input(self, raw_input: List[str]) -> Dict[Tuple[int, int], str]:
         return {
             (x, y): char
             for x, line in enumerate(raw_input)
