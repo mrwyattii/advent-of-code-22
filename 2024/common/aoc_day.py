@@ -1,5 +1,6 @@
 import inspect
 from abc import ABC
+from copy import deepcopy
 from pathlib import Path
 from typing import Any, List
 
@@ -13,9 +14,9 @@ class AoCDay(ABC):
 
     def __call__(self):
         print("Part 1:")
-        self.part1(self.processed_input)
+        self.part1(deepcopy(self.processed_input))
         print("Part 2:")
-        self.part2(self.processed_input)
+        self.part2(deepcopy(self.processed_input))
 
     def _load_input(self) -> List[str]:
         input_file = None
