@@ -1,4 +1,3 @@
-from itertools import product
 from operator import add, mul
 from typing import Callable, List
 
@@ -16,11 +15,13 @@ class Day07(AoCDay):
     def equation_satisfied(
         test_value: int, calibration_values: List[int], operators: List[Callable]
     ):
-        for ops in product(operators, repeat=len(calibration_values) - 1):
-            accum = calibration_values[0]
-            for i, op in enumerate(ops):
-                accum = op(accum, calibration_values[i + 1])
-            if accum == test_value:
+        calculated_values = {calibration_values[0]}
+        for y in calibration_values[1:]:
+            calculated_values = {
+                op(x, y) for x in calculated_values for op in operators
+            }
+            calculated_values = {x for x in calculated_values if x <= test_value}
+            if test_value in calculated_values:
                 return True
         return False
 
