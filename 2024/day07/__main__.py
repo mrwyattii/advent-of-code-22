@@ -3,6 +3,7 @@ from operator import add, mul
 from typing import Callable, List
 
 from common.aoc_day import AoCDay
+from tqdm import tqdm
 
 
 class Day07(AoCDay):
@@ -25,23 +26,21 @@ class Day07(AoCDay):
 
     def part1(self, input: List[int]) -> None:
         operators = [add, mul]
-        print(
-            sum(
-                test_value
-                * self.equation_satisfied(test_value, calibration_values, operators)
-                for test_value, *calibration_values in input
+        sum_value = 0
+        for test_value, *calibration_values in tqdm(input):
+            sum_value += test_value * self.equation_satisfied(
+                test_value, calibration_values, operators
             )
-        )
+        print(sum_value)
 
     def part2(self, input: List[int]) -> None:
-        operators = [add, mul, lambda x, y: int(str(x) + str(y))]
-        print(
-            sum(
-                test_value
-                * self.equation_satisfied(test_value, calibration_values, operators)
-                for test_value, *calibration_values in input
+        operators = [add, mul, lambda x, y: x * (10 ** len(str(y))) + y]
+        sum_value = 0
+        for test_value, *calibration_values in tqdm(input):
+            sum_value += test_value * self.equation_satisfied(
+                test_value, calibration_values, operators
             )
-        )
+        print(sum_value)
 
 
 if __name__ == "__main__":
