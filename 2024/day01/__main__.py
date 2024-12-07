@@ -9,8 +9,7 @@ class Day01(AoCDay):
 
     def part1(self, input):
         left, right = zip(*input)
-        left, right = sorted(left), sorted(right)
-        print(sum(abs(x - y) for x, y in zip(left, right)))
+        print(sum(abs(x - y) for x, y in zip(sorted(left), sorted(right))))
 
     def part2(self, input):
         left, right = zip(*input)
