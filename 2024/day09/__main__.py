@@ -1,56 +1,90 @@
 import sys
+from heapq import heappop, heappush
 from itertools import groupby
-from typing import List
+from typing import List, Tuple
 
 from common.aoc_day import AoCDay
 from tqdm import tqdm
+
+
+class NoSpaceError(Exception):
+    pass
 
 
 class Disk:
     def __init__(self, blocks: List[int]) -> None:
         self.blocks = blocks
 
-    def get_free_blocks(self, size: int, max_idx: int) -> List[int]:
-        idx = self.blocks.index(-1)
-        free_blocks = []
-        if max_idx < idx:
-            return free_blocks
-
-        for i in range(idx, max_idx):
-            if self.blocks[i] == -1:
-                free_blocks.append(i)
-                if len(free_blocks) == size:
-                    break
+        block_groups = [
+            (file_id, [idx for idx, _ in blocks])
+            for file_id, blocks in groupby(enumerate(self.blocks), key=lambda x: x[1])
+        ]
+        self.free_space = {i: [] for i in range(10)}
+        self.file_list = []
+        for file_id, blocks in block_groups:
+            if file_id == -1:
+                heappush(self.free_space[len(blocks)], blocks[0])
             else:
-                free_blocks = []
-        return free_blocks
+                self.file_list.append(blocks)
+
+    def get_leftest_free_block(self, min_size: int) -> Tuple[int, int]:
+        free_sizes = {
+            i: heappop(self.free_space[i])
+            for i in range(min_size, 10)
+            if self.free_space[i]
+        }
+        if not free_sizes:
+            raise NoSpaceError("No free space available")
+        min_key = min(free_sizes, key=free_sizes.get)
+        for k, v in free_sizes.items():
+            heappush(self.free_space[k], v)
+        return min_key, heappop(self.free_space[min_key])
+
+    def get_free_blocks(
+        self, min_size: int, total_size: int, max_idx: int
+    ) -> List[int]:
+        try:
+            free_space_size, free_space_idx = self.get_leftest_free_block(min_size)
+        except NoSpaceError:
+            return []
+
+        if free_space_idx > max_idx:
+            heappush(self.free_space[free_space_size], free_space_idx)
+            return []
+
+        take_size = min(free_space_size, total_size)
+        heappush(
+            self.free_space[free_space_size - take_size], free_space_idx + take_size
+        )
+
+        free_space_idx_list = [
+            x for x in range(free_space_idx, free_space_idx + take_size)
+        ]
+        if take_size == total_size:
+            return free_space_idx_list
+        else:
+            return free_space_idx_list + self.get_free_blocks(
+                min_size, total_size - take_size, max_idx
+            )
 
     def move_file(self, move_from: List[int], move_to: List[int]) -> None:
-        if len(move_from) != len(move_to):
-            return
-        for f, t in zip(move_from, move_to):
+        for f, t in zip(reversed(move_from), move_to):
             self.blocks[t] = self.blocks[f]
             self.blocks[f] = -1
 
     def defrag(self, chunk_size: int = sys.maxsize) -> None:
-        def chunk_file_block(block: List[int]) -> List[List[int]]:
-            return [block[i : i + chunk_size] for i in range(0, len(block), chunk_size)]
-
-        file_list = [
-            [idx for idx, _ in blocks]
-            for file_id, blocks in groupby(enumerate(self.blocks), key=lambda x: x[1])
-            if file_id != -1
-        ]
-        file_list = [
-            block for file_block in file_list for block in chunk_file_block(file_block)
-        ]
+        file_list = self.file_list
         t = tqdm(total=len(file_list), desc="Moving files")
         for file_block in reversed(file_list):
             start_idx = file_block[0]
             if self.blocks.index(-1) > start_idx:
                 t.update(t.total - t.n)
                 break
-            move_to = self.get_free_blocks(len(file_block), max_idx=start_idx)
+            move_to = self.get_free_blocks(
+                min_size=min(len(file_block), chunk_size),
+                total_size=len(file_block),
+                max_idx=start_idx,
+            )
             self.move_file(file_block, move_to)
             t.update(1)
         t.close()
