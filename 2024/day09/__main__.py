@@ -1,107 +1,83 @@
-from dataclasses import dataclass
+import sys
 from typing import List
 
 from common.aoc_day import AoCDay
 from tqdm import tqdm
 
 
-@dataclass
-class Block:
-    start: int
-    end: int
-    file_id: int = -1
-
-    @property
-    def size(self) -> int:
-        return self.end - self.start
-
-    @property
-    def is_free(self) -> int:
-        return self.file_id == -1
-
-
 class Disk:
-    def __init__(self, blocks: List[Block]) -> None:
-        self.files = [b for b in blocks if not b.is_free]
-        self.empty = [b for b in blocks if b.is_free]
+    def __init__(self, blocks: List[int]) -> None:
+        self.blocks = blocks
 
-    def get_first_free(self, size: int, max_start: int) -> Block:
-        for block in self.empty:
-            if block.start > max_start:
-                return None
-            if block.size >= size:
-                return block
-        return None
+    def get_free_blocks(self, size: int, max_idx: int) -> List[int]:
+        idx = self.blocks.index(-1)
+        free_blocks = []
+        if max_idx < idx:
+            return free_blocks
 
-    def move_file(self, move_from: Block, move_to: Block) -> None:
-        assert move_to.is_free
-        assert move_to.size >= move_from.size
+        for i in range(idx, max_idx):
+            if self.blocks[i] == -1:
+                free_blocks.append(i)
+                if len(free_blocks) == size:
+                    break
+            else:
+                free_blocks = []
+        return free_blocks
 
-        self.files.remove(move_from)
-        self.empty.remove(move_to)
+    def move_file(self, move_from: List[int], move_to: List[int]) -> None:
+        if len(move_from) != len(move_to):
+            return
+        for f, t in zip(move_from, move_to):
+            self.blocks[t] = self.blocks[f]
+            self.blocks[f] = -1
 
-        self.files += [
-            Block(move_to.start, move_to.start + move_from.size, move_from.file_id)
-        ]
-        self.empty += [
-            Block(move_from.start, move_from.end, -1),
-            Block(move_to.start + move_from.size, move_to.end, -1),
-        ]
+    def defrag(self, block_size: int = sys.maxsize) -> None:
+        def flush_current_file():
+            if current_file_blocks and current_file_id != -1:
+                file_list.append(current_file_blocks)
 
-        self.files = [b for b in self.files if b.size > 0]
-        self.empty = [b for b in self.empty if b.size > 0]
+        file_list = []
+        current_file_id = -1
+        current_file_blocks = []
+        for i, block in tqdm(
+            enumerate(self.blocks), total=len(self.blocks), desc="Generating file list"
+        ):
+            if block != current_file_id or len(current_file_blocks) == block_size:
+                flush_current_file()
+                current_file_id = block
+                current_file_blocks = []
+            current_file_blocks.append(i)
+        flush_current_file()
 
-        self.files.sort(key=lambda x: x.start)
-        self.empty.sort(key=lambda x: x.start)
+        t = tqdm(total=len(file_list), desc="Moving files")
+        for file_block in reversed(file_list):
+            start_idx = file_block[0]
+            if self.blocks.index(-1) > start_idx:
+                t.update(t.total - t.n)
+                break
+            move_to = self.get_free_blocks(len(file_block), max_idx=start_idx)
+            self.move_file(file_block, move_to)
+            t.update(1)
+        t.close()
 
 
 class Day09(AoCDay):
-    def process_input(self, raw_input: List[str]) -> List[int]:
-        return map(int, raw_input[0].strip())
+    def process_input(self, raw_input: List[str]) -> Disk:
+        blocks = []
+        for i, size in enumerate(raw_input[0].strip()):
+            blocks.extend([i // 2 if i % 2 == 0 else -1] * int(size))
+        return Disk(blocks)
 
     def calculate_checksum(self, disk: Disk) -> int:
-        checksum = 0
-        for block in disk.files:
-            for i in range(block.start, block.end):
-                checksum += i * block.file_id
-        return checksum
+        return sum([i * block for i, block in enumerate(disk.blocks) if block != -1])
 
-    def defrag_disk(self, disk: Disk) -> None:
-        t = tqdm(total=len(disk.files))
-        for i in range(-1, -len(disk.files), -1):
-            while True:
-                t.update(1)
-                move_from = disk.files[i]
-                move_to = disk.get_first_free(move_from.size, max_start=move_from.start)
-                if move_to is None:
-                    break
-                disk.move_file(move_from, move_to)
-        t.close()
-
-    def part1(self, input: List[int]) -> None:
-        block_count = 0
-        blocks = []
-        for i, size in enumerate(input):
-            for j in range(block_count, block_count + size):
-                file_id = i // 2 if (i % 2 == 0) else -1
-                blocks.append(Block(start=j, end=j + 1, file_id=file_id))
-            block_count += size
-        disk = Disk(blocks)
-        self.defrag_disk(disk)
-        print(self.calculate_checksum(disk))
+    def part1(self, input: Disk) -> None:
+        input.defrag(block_size=1)
+        print(self.calculate_checksum(input))
 
     def part2(self, input: List[int]) -> None:
-        block_count = 0
-        blocks = []
-        for i, size in enumerate(input):
-            file_id = i // 2 if (i % 2 == 0) else -1
-            blocks.append(
-                Block(start=block_count, end=block_count + size, file_id=file_id)
-            )
-            block_count += size
-        disk = Disk(blocks)
-        self.defrag_disk(disk)
-        print(self.calculate_checksum(disk))
+        input.defrag()
+        print(self.calculate_checksum(input))
 
 
 if __name__ == "__main__":
