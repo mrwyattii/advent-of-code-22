@@ -25,14 +25,14 @@ class Day04(AoCDay):
             start = (start[0] + direction[0], start[1] + direction[1])
         return True
 
-    def part1(self, input: Dict[Tuple[int, int], str]):
+    def part1(self, grid: Dict[Tuple[int, int], str]) -> int:
         word_count = 0
         directions = list(product([1, 0, -1], repeat=2))
-        for start in input.keys():
+        for start in grid.keys():
             for d in directions:
-                if self.word_in_direction(input, "XMAS", start, d):
+                if self.word_in_direction(grid, "XMAS", start, d):
                     word_count += 1
-        print(word_count)
+        return word_count
 
     @staticmethod
     def x_mas_in_position(grid: Dict[Tuple[int, int], str], start: Tuple[int, int]):
@@ -44,12 +44,12 @@ class Day04(AoCDay):
         backward_slash = {grid.get((x - 1, y + 1), ""), grid.get((x + 1, y - 1), "")}
         return (forward_slash == mas_chars) and (backward_slash == mas_chars)
 
-    def part2(self, input: Dict[Tuple[int, int], str]):
+    def part2(self, grid: Dict[Tuple[int, int], str]) -> int:
         word_count = 0
-        for start in input.keys():
-            if self.x_mas_in_position(input, start):
+        for start in grid.keys():
+            if self.x_mas_in_position(grid, start):
                 word_count += 1
-        print(word_count)
+        return word_count
 
 
 if __name__ == "__main__":

@@ -8,14 +8,14 @@ class Day03(AoCDay):
     def process_input(self, raw_input: List[str]) -> str:
         return "_".join(raw_input).replace("\n", "_")
 
-    def part1(self, input: str) -> None:
+    def part1(self, memory_data: str) -> int:
         mul_re = r"mul\(([0-9]{1,3}),([0-9]{1,3})\)"
-        print(sum([int(x) * int(y) for x, y in re.findall(mul_re, input)]))
+        return sum([int(x) * int(y) for x, y in re.findall(mul_re, memory_data)])
 
-    def part2(self, input: str) -> None:
-        input = "do()" + input + "don't()"
+    def part2(self, memory_data: str) -> int:
+        memory_data = "do()" + memory_data + "don't()"
         do_dont_re = r"do\(\)(.*?)don\'t\(\)"
-        self.part1("".join(re.findall(do_dont_re, input)))
+        return self.part1("".join(re.findall(do_dont_re, memory_data)))
 
 
 if __name__ == "__main__":

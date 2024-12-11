@@ -25,24 +25,24 @@ class Day07(AoCDay):
                 return True
         return False
 
-    def part1(self, input: List[int]) -> None:
+    def part1(self, eq_inputs: List[int]) -> int:
         operators = [add, mul]
         sum_value = 0
-        for test_value, *calibration_values in tqdm(input):
+        for test_value, *calibration_values in tqdm(eq_inputs):
             sum_value += test_value * self.equation_satisfied(
                 test_value, calibration_values, operators
             )
-        print(sum_value)
+        return sum_value
 
-    def part2(self, input: List[int]) -> None:
+    def part2(self, eq_inputs: List[int]) -> int:
         operators = [add, mul, lambda x, y: x * (10 ** len(str(y))) + y]
         sum_value = 0
-        for test_value, *calibration_values in tqdm(input):
+        for test_value, *calibration_values in tqdm(eq_inputs):
             sum_value += test_value * self.equation_satisfied(
                 test_value, calibration_values, operators
             )
-        print(sum_value)
+        return sum_value
 
 
 if __name__ == "__main__":
-    Day07(0)()
+    Day07()()

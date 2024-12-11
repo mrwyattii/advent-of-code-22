@@ -21,17 +21,17 @@ class Day02(AoCDay):
 
         return True
 
-    def part1(self, input: List[List[int]]) -> None:
-        print(sum(map(self.is_safe, input)))
+    def part1(self, reports: List[List[int]]) -> int:
+        return sum(map(self.is_safe, reports))
 
-    def part2(self, input: List[List[int]]) -> None:
+    def part2(self, reports: List[List[int]]) -> int:
         safe_count = 0
-        for report in input:
+        for report in reports:
             if any(
                 self.is_safe(report[:i] + report[i + 1 :]) for i in range(len(report))
             ):
                 safe_count += 1
-        print(safe_count)
+        return safe_count
 
 
 if __name__ == "__main__":

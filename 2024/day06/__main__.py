@@ -72,25 +72,25 @@ class Day06(AoCDay):
             grid_size=grid_size, obstacles=obstacles, location=start, direction=(0, -1)
         )
 
-    def part1(self, input: GuardWalker) -> None:
-        input.walk()
-        print(len({loc for loc, _ in input.history}))
+    def part1(self, guard: GuardWalker) -> int:
+        guard.walk()
+        return len({loc for loc, _ in guard.history})
 
-    def part2(self, input: GuardWalker) -> None:
-        input.walk()
-        path = {loc for loc, _ in input.history}
-        path.remove(input.original_location)  # Skip first location
+    def part2(self, guard: GuardWalker) -> int:
+        guard.walk()
+        path = {loc for loc, _ in guard.history}
+        path.remove(guard.original_location)  # Skip first location
         add_obstacle_locations = set()
         for loc in tqdm(path):
-            input.reset()
-            input.obstacles.add(loc)
+            guard.reset()
+            guard.obstacles.add(loc)
             try:
-                input.walk()
+                guard.walk()
             except CycleError:
                 add_obstacle_locations.add(loc)
-            input.obstacles.remove(loc)
-        print(len(add_obstacle_locations))
+            guard.obstacles.remove(loc)
+        return len(add_obstacle_locations)
 
 
 if __name__ == "__main__":
-    Day06(0)()
+    Day06()()

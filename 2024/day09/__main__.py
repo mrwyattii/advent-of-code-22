@@ -100,13 +100,13 @@ class Day09(AoCDay):
     def calculate_checksum(self, disk: Disk) -> int:
         return sum([i * block for i, block in enumerate(disk.blocks) if block != -1])
 
-    def part1(self, input: Disk) -> None:
-        input.defrag(chunk_size=1)
-        print(self.calculate_checksum(input))
+    def part1(self, disk: Disk) -> int:
+        disk.defrag(chunk_size=1)
+        return self.calculate_checksum(disk)
 
-    def part2(self, input: List[int]) -> None:
-        input.defrag()
-        print(self.calculate_checksum(input))
+    def part2(self, disk: Disk) -> int:
+        disk.defrag()
+        return self.calculate_checksum(disk)
 
 
 if __name__ == "__main__":

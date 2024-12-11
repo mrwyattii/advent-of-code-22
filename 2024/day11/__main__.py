@@ -1,18 +1,16 @@
 from collections import defaultdict
-from typing import DefaultDict, List, Tuple
+from typing import DefaultDict, List
 
-import seaborn as sns
 from common.aoc_day import AoCDay
-from matplotlib import pyplot as plt
 from tqdm import trange
 
 
 class Day11(AoCDay):
     def process_input(self, raw_input: List[str]) -> DefaultDict[int, int]:
-        stone_dict = defaultdict(int)
+        stones = defaultdict(int)
         for s in raw_input[0].strip().split(" "):
-            stone_dict[int(s)] += 1
-        return stone_dict
+            stones[int(s)] += 1
+        return stones
 
     @staticmethod
     def blink(stones: DefaultDict[int, int]) -> DefaultDict[int, int]:
@@ -29,40 +27,16 @@ class Day11(AoCDay):
                 new_stones[stone_val * 2024] += num_stones
         return new_stones
 
-    def visualize(self, stone_history: List[Tuple[int, int]]) -> None:
-        _, ax = plt.subplots(figsize=(10, 6))
-        unique_stones, stone_count = zip(*stone_history)
-        sns.lineplot(
-            x=range(len(stone_history)),
-            y=unique_stones,
-            ax=ax,
-            label="Unique Stones",
-            color="g",
-        )
-        sns.lineplot(
-            x=range(len(stone_history)),
-            y=stone_count,
-            ax=ax,
-            label="Total Stones",
-            color="b",
-        )
-        ax.set_yscale("log")
-        ax.set_ylim(1, None)
-        plt.savefig("day11/day11.png")
-
-    def part1(self, input: DefaultDict[int, int]) -> None:
+    def part1(self, stones: DefaultDict[int, int]) -> int:
         for _ in trange(25):
-            input = self.blink(input)
-        print(sum(input.values()))
+            stones = self.blink(stones)
+        return sum(stones.values())
 
-    def part2(self, input: DefaultDict[int, int]) -> None:
-        stone_history = [(len(input), sum(input.values()))]
+    def part2(self, stones: DefaultDict[int, int]) -> int:
         for _ in trange(75):
-            input = self.blink(input)
-            stone_history.append((len(input), sum(input.values())))
-        self.visualize(stone_history)
-        print(sum(input.values()))
+            stones = self.blink(stones)
+        return sum(stones.values())
 
 
 if __name__ == "__main__":
-    Day11(0)()
+    Day11()()

@@ -21,12 +21,12 @@ class Day10(AoCDay):
             [self.climb(topo_map, loc + d, elev + 1) for d in [1j, 1, -1j, -1]], []
         )
 
-    def part1(self, input: Dict[complex, int]) -> None:
-        print(sum(len(set(self.climb(input, loc))) for loc in input))
+    def part1(self, topo_map: Dict[complex, int]) -> int:
+        return sum(len(set(self.climb(topo_map, loc))) for loc in topo_map)
 
-    def part2(self, input: Dict[complex, int]) -> None:
-        print(sum(len(self.climb(input, loc)) for loc in input))
+    def part2(self, topo_map: Dict[complex, int]) -> int:
+        return sum(len(self.climb(topo_map, loc)) for loc in topo_map)
 
 
 if __name__ == "__main__":
-    Day10(0)()
+    Day10()()

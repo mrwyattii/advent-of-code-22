@@ -82,12 +82,12 @@ class Day08(AoCDay):
 
         return Map(antennas, size)
 
-    def part1(self, input: Map) -> None:
-        print(len(input.get_antinodes()))
+    def part1(self, puzzle_map: Map) -> int:
+        return len(puzzle_map.get_antinodes())
 
-    def part2(self, input: Map) -> None:
-        print(len(input.get_antinodes(resonant_freq=True)))
+    def part2(self, puzzle_map: Map) -> int:
+        return len(puzzle_map.get_antinodes(resonant_freq=True))
 
 
 if __name__ == "__main__":
-    Day08(0)()
+    Day08()()

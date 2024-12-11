@@ -1,20 +1,21 @@
 from collections import Counter
+from typing import List, Tuple
 
 from common.aoc_day import AoCDay
 
 
 class Day01(AoCDay):
-    def process_input(self, raw_input):
+    def process_input(self, raw_input: List[str]) -> List[Tuple[int, int]]:
         return list(map(lambda x: tuple(map(int, x.split())), raw_input))
 
-    def part1(self, input):
-        left, right = zip(*input)
-        print(sum(abs(x - y) for x, y in zip(sorted(left), sorted(right))))
+    def part1(self, location_ids: List[Tuple[int, int]]) -> int:
+        left, right = zip(*location_ids)
+        return sum(abs(x - y) for x, y in zip(sorted(left), sorted(right)))
 
-    def part2(self, input):
-        left, right = zip(*input)
+    def part2(self, location_ids: List[Tuple[int, int]]) -> int:
+        left, right = zip(*location_ids)
         counter = Counter(right)
-        print(sum(x * counter[x] for x in left))
+        return sum(x * counter[x] for x in left)
 
 
 if __name__ == "__main__":
